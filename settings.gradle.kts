@@ -55,6 +55,11 @@ dependencyResolutionManagement {
         maven("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea") {
             content { includeGroupByRegex("com\\.mbridge\\..*") }
         }
+        // The Flutter engine's Java embedding (:samples:dart-plugin's Flutter player only). Published by
+        // Google to its own bucket, not Maven Central or Google Maven; scoped by group.
+        maven("https://storage.googleapis.com/download.flutter.io") {
+            content { includeGroup("io.flutter") }
+        }
     }
 }
 
@@ -96,6 +101,8 @@ include(
     ":lang-jdt",
     ":lang-java", // IntelliJ-PSI Java LanguageBackend: IntelliJ Java parser + native resolution/inference (replaces lang-jdt in the editor)
     ":lang-xml",
+    ":lsp-api", // the SPI a plugin declares a Language Server Protocol server through (published)
+    ":lsp-client", // the host's LSP client: turns each declared server into the IDE's own language features
     ":lang-kotlin-index", // pure, compiler-free Kotlin symbol/index layer shared by the Kotlin editor backend
     ":kotlin-compiler-deps", // the ONE unshaded Kotlin compiler + IntelliJ platform dependency set (no embeddable)
     ":intellij-psi-host", // the ONE shared IntelliJ platform env both lang-kotlin + lang-xml parse against
@@ -128,6 +135,8 @@ include(
     ":agent-api",   // agentic-coding SPI: provider-neutral LLM client + AgentTool + AgentWorkspace engine port
     ":agent-impl",  // the agent engine: OkHttp/SSE transport, Anthropic/OpenAI/Gemini providers, loop, built-in tools
     ":agent-mcp",   // Model Context Protocol server: exposes the agent's tools over stdio JSON-RPC to external clients
+    ":zipcli-core",   // ZipCLI's pure-JVM command engine (file / search / replace / ZIP commands + scripts) over a project directory
+    ":zipcli-plugin", // the ZipCLI plugin + its `zipcli` AI-agent tool (depends on :agent-api and :zipcli-core)
     ":layout-preview-api",  // owned XML-layout preview: render contracts (RCanvas/RenderNode/Renderer), android-free
     ":layout-preview-impl", // the preview engine: resource value resolver, inflater, built-in renderers, ASM bridge remapper
     // The platform-free core of the SPI: the symbol model, the DOM, VirtualFile and ContentHash.
@@ -182,6 +191,7 @@ if (System.getenv("CI_CORE_ONLY") != "true") {
         ":ide-ui",
         ":agent-ui", // the AI agent's Compose UI as a self-contained plugin module (chat panel + provider sheet + permission overlay)
         ":vcs-ui", // the version-control Compose UI as a self-contained plugin module (Git panel, branches, history, sign-in, clone)
+        ":zipcli-ui", // the ZipCLI terminal tab as a self-contained plugin module
         ":ide-core",
         ":ide-desktop",
         // The iOS shell: a Compose `UIViewController` over :ide-ui, the third host beside desktop and
@@ -202,6 +212,8 @@ if (System.getenv("CI_CORE_ONLY") != "true") {
         // A plugin packaged as its own app, built here so it cannot drift from the SPI it compiles against.
         ":samples:hello-plugin",
         ":samples:ndk-plugin",
+        ":samples:lsp-plugin",
+        ":samples:dart-plugin",
     )
 }
 
@@ -226,7 +238,7 @@ val layers = mapOf(
     "lang" to listOf(
         "kotlin-classfile",
         "language-api", "index-api", "index-impl", "analysis-api", "analysis-impl",
-        "lang-jdt", "lang-java", "lang-kotlin", "lang-kotlin-index", "lang-ksp", "lang-xml",
+        "lang-jdt", "lang-java", "lang-kotlin", "lang-kotlin-index", "lang-ksp", "lang-xml", "lsp-api", "lsp-client",
         "kotlin-compiler-deps", "intellij-psi-host", "decompiler", "block-api", "block-impl",
     ),
     // The build system. Named `build-system` rather than `build` because `build/` is the root
@@ -247,6 +259,7 @@ val layers = mapOf(
         "deps-api", "deps-impl", "vcs-api", "vcs-impl", "vcs-ui",
         "store-api", "store-impl", "store-bridge",
         "analytics-api", "analytics-impl", "agent-api", "agent-impl", "agent-mcp", "agent-ui",
+        "zipcli-core", "zipcli-plugin", "zipcli-ui",
     ),
     // The plugin SPI a third-party plugin compiles against, and the host that resolves it.
     "plugins" to listOf("plugin-api", "plugin-ui-api", "plugin-bom", "plugin-impl", "spi-compat"),
