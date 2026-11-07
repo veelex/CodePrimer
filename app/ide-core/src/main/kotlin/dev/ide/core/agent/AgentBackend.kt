@@ -189,7 +189,6 @@ internal class AgentBackend(private val ctx: BackendContext) : AgentService {
         enabled = { ctx.manager?.env?.pluginCatalog?.isEnabled(ZipCliPlugin.ID) != false },
     )
 
-    private val tools = SimpleToolRegistry(builtinTools(checkpoints) + ftpControlTool + zipCliTool)
     // --- ask_user: the agent's multiple-choice questions, answered in the chat ---
 
     private val _questionRequest = MutableStateFlow<dev.ide.ui.backend.UiAgentQuestionRequest?>(null)
@@ -235,7 +234,7 @@ internal class AgentBackend(private val ctx: BackendContext) : AgentService {
     private val agentConnections = AgentConnections(ctx, scope)
 
     // ask_user is the chat's alone: an MCP client has no card to answer it with.
-    private val builtinChatTools: List<AgentTool> = builtinTools(checkpoints) + ftpControlTool + askUser
+    private val builtinChatTools: List<AgentTool> = builtinTools(checkpoints) + ftpControlTool + zipCliTool + askUser
 
     /**
      * The chat's tools: the built-ins, then whatever the connected MCP servers and installed skills add. Read on
