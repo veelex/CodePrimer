@@ -143,6 +143,23 @@ val desktopVersion: String = providers.gradleProperty("desktopVersion").orNull
         ?.groupValues?.get(1)
     ?: error("no versionName in app/ide-android/build.gradle.kts; pass -PdesktopVersion")
 
+// Compose Desktop hands packageVersion to MSI (up to four numeric fields, the first three <= 255) and to
+// DMG at *configuration* time, so a remix version such as "3.34.0-cp.1" fails the version check and takes
+// every task in the build with it, not just packaging. Keep versionName as the user-facing identity and give
+// the installers its numeric form, with the remix counter as the fourth field so 3.34.0-cp.2 still sorts
+// after 3.34.0-cp.1 while both sort after the upstream 3.34.0 they are based on.
+val desktopPackageVersion: String = run {
+    val remix = Regex("""^(\d+)\.(\d+)\.(\d+)-cp\.(\d+)$""").find(desktopVersion)
+    when {
+        remix != null -> remix.groupValues.drop(1).joinToString(".")
+        Regex("""^\d+(\.\d+){1,3}$""").matches(desktopVersion) -> desktopVersion
+        else -> error(
+            "versionName '$desktopVersion' has no numeric installer form; expected X.Y.Z or X.Y.Z-cp.N"
+        )
+    }
+}
+
+
 // Every module of the JDK that packages the app (the Gradle daemon's JBR, which the plugin links from), less the
 // JetBrains Runtime's embedded Chromium and its OpenGL bindings: nothing here uses them, and on Windows JCEF alone
 // is ~270 MB (libcef.dll, dxcompiler.dll, resources.pak). Read from jmods/ since the set differs per OS.
@@ -158,10 +175,12 @@ compose.desktop {
         mainClass = "dev.ide.desktop.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "CodeAssist"
-            packageVersion = desktopVersion
+            // The installer, the Start-menu entry and the installed directory carry the remix name; the
+            // upgrade UUID below is what Windows actually keys upgrades on, and it is unchanged.
+            packageName = "CodePrimer"
+            packageVersion = desktopPackageVersion
             description = "Android and Kotlin IDE"
-            vendor = "CodeAssist"
+            vendor = "CodePrimer"
             // The bundled runtime is also the JDK user projects compile and complete against, and kotlinc needs
             // java.management: a runtime trimmed to the modules the IDE itself links fails every Kotlin build.
             modules(*bundledRuntimeModules.toTypedArray())
@@ -183,7 +202,7 @@ compose.desktop {
             }
             linux {
                 iconFile.set(project.file("icons/CodeAssist.png"))
-                packageName = "codeassist"
+                packageName = "codeprimer"
                 shortcut = true
             }
         }
