@@ -143,22 +143,21 @@ val desktopVersion: String = providers.gradleProperty("desktopVersion").orNull
         ?.groupValues?.get(1)
     ?: error("no versionName in app/ide-android/build.gradle.kts; pass -PdesktopVersion")
 
-// Compose Desktop hands packageVersion to MSI (up to four numeric fields, the first three <= 255) and to
-// DMG at *configuration* time, so a remix version such as "3.34.0-cp.1" fails the version check and takes
-// every task in the build with it, not just packaging. Keep versionName as the user-facing identity and give
-// the installers its numeric form, with the remix counter as the fourth field so 3.34.0-cp.2 still sorts
-// after 3.34.0-cp.1 while both sort after the upstream 3.34.0 they are based on.
+// Compose Desktop validates packageVersion while the build is being configured, and accepts only numeric
+// forms - MAJOR[.MINOR][.PATCH] for DMG, MAJOR.MINOR.BUILD for MSI - so the remix suffix cannot be encoded
+// here at all, not even as a fourth field. The installers therefore carry versionName's numeric base
+// ("3.34.0" for "3.34.0-cp.1"); the remix counter lives in the release tag, in the Android versionName, and
+// in the About screen. Pass -PdesktopVersion to override for a one-off packaging run.
 val desktopPackageVersion: String = run {
-    val remix = Regex("""^(\d+)\.(\d+)\.(\d+)-cp\.(\d+)$""").find(desktopVersion)
+    val remix = Regex("""^(\d+)\.(\d+)\.(\d+)-cp\.\d+$""").find(desktopVersion)
     when {
-        remix != null -> remix.groupValues.drop(1).joinToString(".")
-        Regex("""^\d+(\.\d+){1,3}$""").matches(desktopVersion) -> desktopVersion
+        remix != null -> remix.groupValues.slice(1..3).joinToString(".")
+        Regex("""^\d+\.\d+\.\d+$""").matches(desktopVersion) -> desktopVersion
         else -> error(
-            "versionName '$desktopVersion' has no numeric installer form; expected X.Y.Z or X.Y.Z-cp.N"
+            "versionName '$desktopVersion' has no installer form; expected X.Y.Z or X.Y.Z-cp.N"
         )
     }
 }
-
 
 // Every module of the JDK that packages the app (the Gradle daemon's JBR, which the plugin links from), less the
 // JetBrains Runtime's embedded Chromium and its OpenGL bindings: nothing here uses them, and on Windows JCEF alone
