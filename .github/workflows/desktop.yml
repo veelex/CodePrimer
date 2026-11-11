@@ -73,7 +73,7 @@ jobs:
       - name: Smoke test, an APK with no Android SDK
         run: |
           set -euo pipefail
-          image=app/ide-desktop/build/compose/binaries/main/app/CodeAssist
+          image=app/ide-desktop/build/compose/binaries/main/app/CodePrimer
           ls "$image"
           java="$image/runtime/bin/java.exe"
           toolchain="$image/app/resources/android-toolchain"
@@ -117,7 +117,7 @@ jobs:
           mkdir -p dist
           cp "$msi" "dist/$name-windows-x64.msi"
           if [ "${{ github.event_name }}" = "release" ]; then
-            (cd "$out/app" && 7z a -tzip -bd "$GITHUB_WORKSPACE/dist/$name-windows-x64-portable.zip" CodeAssist > /dev/null)
+            (cd "$out/app" && 7z a -tzip -bd "$GITHUB_WORKSPACE/dist/$name-windows-x64-portable.zip" CodePrimer > /dev/null)
           fi
           ls -lh dist
 
@@ -194,9 +194,9 @@ jobs:
       - name: Smoke test, an APK with no Android SDK
         run: |
           set -euo pipefail
-          image=app/ide-desktop/build/compose/binaries/main/app/CodeAssist
+          image=app/ide-desktop/build/compose/binaries/main/app/CodePrimer
           ls "$image" "$image/lib"
-          test -x "$image/bin/CodeAssist" || { echo "::error::the image has no executable launcher"; exit 1; }
+          test -x "$image/bin/CodePrimer" || { echo "::error::the image has no executable launcher"; exit 1; }
           java="$image/lib/runtime/bin/java"
           toolchain="$image/lib/app/resources/android-toolchain"
           ls -l "$toolchain"
@@ -233,11 +233,11 @@ jobs:
           out=app/ide-desktop/build/compose/binaries/main
           deb=$(ls "$out"/deb/*.deb | head -1)
           version=$(dpkg-deb -f "$deb" Version | sed 's/-[0-9]*$//')
-          name="CodeAssist-$version"
+          name="CodePrimer-$version"
           echo "name=$name" >> "$GITHUB_OUTPUT"
           mkdir -p dist
           cp "$deb" "dist/$name-linux-x64.deb"
-          tar -C "$out/app" -czf "dist/$name-linux-x64-portable.tar.gz" CodeAssist
+          tar -C "$out/app" -czf "dist/$name-linux-x64-portable.tar.gz" CodePrimer
           ls -lh dist
 
       - name: Upload the package
