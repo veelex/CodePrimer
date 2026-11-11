@@ -13,7 +13,6 @@
 [![License](https://img.shields.io/github/license/veelex/CodePrimer)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/veelex/CodePrimer?style=flat&logo=github)](https://github.com/veelex/CodePrimer/stargazers)
 [![Forks](https://img.shields.io/github/forks/veelex/CodePrimer?style=flat&logo=github)](https://github.com/veelex/CodePrimer/network/members)
-[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/y2gycT6pDW)
 
 **Fork, patch, ship:** [contributing](CONTRIBUTING.md) · [security policy](SECURITY.md) · [upstream sync](docs/upstream-sync.md) · [what changed in this remix](REMIX.md)
 

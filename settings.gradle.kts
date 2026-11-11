@@ -183,14 +183,6 @@ if (System.getenv("CI_CORE_ONLY") != "true") {
         ":agent-ui", // the AI agent's Compose UI as a self-contained plugin module (chat panel + provider sheet + permission overlay)
         ":vcs-ui", // the version-control Compose UI as a self-contained plugin module (Git panel, branches, history, sign-in, clone)
         ":ide-core",
-        ":ide-desktop",
-        // The iOS shell: a Compose `UIViewController` over :ide-ui, the third host beside desktop and
-        // Android. It builds only on a machine with Xcode, which is every machine that can target iOS.
-        ":ide-ios",
-        // The headless launcher: `codeassist assemble` over :ide-core's HeadlessEngine. A shell like the
-        // other two (it depends on :ide-core, which api-exposes the Compose UI port), so it lives here
-        // rather than in the framework.
-        ":build-cli",
         // JDK/ART compatibility jars the APK dexes but nothing compiles against (relocated ecj + Eclipse
         // runtime, javax.xml.stream / javax.swing / javax.management / javax.lang.model surface, jdk.jfr
         // shims). Consumed only by :ide-android, and it needs the Android SDK to compile the shims against
@@ -253,9 +245,8 @@ val layers = mapOf(
     // The IDE itself: the Compose UI, its backend port, and the desktop/Android/iOS shells.
     "app" to listOf(
         "ide-ui-api", "ide-ui-resources", "ide-ui-core", "ide-ui-components", "ide-ui-editor",
-        "ide-ui-screens", "ide-ui-testing", "ide-ui", "model-bridge", "ide-core", "ide-desktop",
-        "ide-android", "ide-ios",
-        "build-cli",
+        "ide-ui-screens", "ide-ui-testing", "ide-ui", "model-bridge", "ide-core",
+        "ide-android",
     ),
     // Test-only harnesses, consumed via testImplementation.
     "tools" to listOf("test-support", "bench-support"),

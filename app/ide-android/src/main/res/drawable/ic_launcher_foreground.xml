@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The mark: a prompt chevron and its cursor bar, `>_`, drawn as two strokes so the round caps and joins
+     stay round at every density. Geometry lives in the 108dp adaptive viewport and stays inside the 72dp
+     safe zone, so no launcher mask clips it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M30,30 L57,55 L30,80"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFC15E"
+        android:strokeWidth="11"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M64,80 L81,80"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFF7A5C"
+        android:strokeWidth="11"
+        android:strokeLineCap="round" />
+</vector>

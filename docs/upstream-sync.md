@@ -73,6 +73,21 @@ code is dexed at runtime, and the toolchain is loaded reflectively.
 - **Anything AI-authored** in this fork that touches the sandbox, agent tools, signing or file ops gets a
   line-by-line read — the `feature/zipcli` branch carries such commits and has never been reviewed.
 
+## What this fork no longer has
+
+`app/ide-desktop`, `app/ide-ios`, `app/build-cli`, `fastlane/`, `action.yml` and three workflows were
+removed (see `REMIX.md`). At merge time, take **upstream's side for the rest of the tree and drop these
+paths entirely** — do not try to keep them compiling. A delete/modify conflict on those paths is the
+expected outcome, not a mistake:
+
+```sh
+git rm -r --cached app/ide-desktop app/ide-ios app/build-cli fastlane action.yml 2>/dev/null
+git checkout --ours settings.gradle.kts .github/workflows/ci.yml   # then re-check the includes below
+```
+
+`settings.gradle.kts` is the only file where that rule inverts: it must keep **this fork's** `include`
+list (three modules shorter) while taking upstream's additions for everything else.
+
 ## Cadence
 
 Merge upstream **at each upstream release, within a week of it** — not when the app breaks. Before a
