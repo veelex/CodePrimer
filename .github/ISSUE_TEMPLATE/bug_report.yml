@@ -1,0 +1,68 @@
+name: Bug report
+description: Something in CodePrimer is broken or crashes
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: this is a **remix** of [CodeAssist](https://github.com/tyron12233/CodeAssist). If the
+        bug also happens in the official app, report it
+        [upstream](https://github.com/tyron12233/CodeAssist/issues) — it will be fixed there and merged here.
+
+  - type: input
+    id: version
+    attributes:
+      label: CodePrimer version
+      description: Settings → About, or the release you installed. Must include the `-cp.N` suffix.
+      placeholder: 3.34.0-cp.1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: variant
+    attributes:
+      label: Build variant
+      options:
+        - profile (from GitHub Releases)
+        - debug (locally built / CI artifact)
+        - release (self-signed)
+        - other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: Pixel 7, Android 15
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Steps to reproduce, what you expected, what you got. Note the project's language and build system if it matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        App-side: Settings → Logs → Share. Build failures: the full build console text.
+        Paste as text, not a screenshot.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I am on the newest release, not an older one.
+          required: true
+        - label: I searched the existing issues.
+          required: true

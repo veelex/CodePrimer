@@ -498,8 +498,11 @@ android {
         minSdk = 26
         targetSdk = 36
         // versionCode must exceed the last published release (the previous-codebase app reached ~29).
-        versionCode = 117
-        versionName = "3.34.0"
+        // 117 shipped as 3.34.0. Bump above the last release; never reuse a number.
+        versionCode = 118
+        // Remix versioning: "<upstream base>-cp.<n>". Never a bare upstream version, so a bug
+        // report identifies the build. See docs/upstream-sync.md.
+        versionName = "3.34.0-cp.1"
         // connectedAndroidTest harness (the on-device Kotlin-compiler discovery spike).
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

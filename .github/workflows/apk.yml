@@ -3,10 +3,12 @@ name: Debug APK
 on:
   push:
     branches: [ main, master, codeprimer-remix ]
+    tags: [ 'v*' ]
   pull_request:
   workflow_dispatch:
 
-# Build the installable CodePrimer debug APK (:ide-android). Unlike the framework jobs, this needs the full
+# Build the installable CodePrimer APK (:ide-android): `debug` for PRs and branch pushes, `profile` for a
+# tag (a release), which is what the README tells people to install. Unlike the framework jobs, this needs the full
 # module set (CI_CORE_ONLY must stay unset) and the Android SDK; the runner's stock SDK plus the exact
 # platform AGP wants (android-36.1 for compileSdk=36 + compileSdkMinor=1) are provisioned with
 # setup-android. The `debug` variant is signed with the debug key so the artifact installs directly.
@@ -17,7 +19,7 @@ env:
   JAVA_VERSION: "25"
 
 permissions:
-  contents: read
+  contents: write # attach the APK to the release on a tag push
 
 concurrency:
   group: apk-${{ github.ref }}
@@ -53,27 +55,49 @@ jobs:
           mkdir -p ~/.gradle
           echo "kotlin.incremental=false" >> ~/.gradle/gradle.properties
 
+      # A tag is a release: build `profile`, the variant the README points people at. It is release-like
+      # and non-debuggable (so it behaves like the shipped app, unlike `debug`, which runs with ART
+      # optimizations off), signs with the release key when one is configured and the debug key
+      # otherwise, and keeps Google's TEST ad ids - a remix must never serve upstream's ad units.
+      - name: Build profile APK (release)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: ./gradlew :ide-android:assembleProfile --console=plain --stacktrace
+
       - name: Build debug APK
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: ./gradlew :ide-android:assembleDebug --console=plain --stacktrace
 
       # Put the file names, sizes and checksums on the run page, so a downloaded APK can be checked against it.
       - name: Summarise APK
         run: |
           {
-            echo "### CodePrimer debug APK"
+            echo "### CodePrimer APK"
             echo ""
-            for f in app/ide-android/build/outputs/apk/debug/*.apk; do
+            for f in app/ide-android/build/outputs/apk/*/*.apk; do
               echo "- \`$(basename "$f")\`: $(du -h "$f" | cut -f1), sha256 \`$(sha256sum "$f" | cut -d' ' -f1)\`"
             done
             echo ""
-            echo "Package \`io.github.veelex.codeprimer\`. Signed with the debug key, so it installs directly."
+            echo "Package \`io.github.veelex.codeprimer\`. Debug builds use the debug key; `profile` builds"
+            echo "use the release key when configured, the debug key otherwise. Either installs directly."
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # On a tag, put the artifact where a user will actually look for it: on the release page.
+      - name: Attach APK to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          src=$(ls app/ide-android/build/outputs/apk/profile/*.apk | head -1)
+          out="CodePrimer-${GITHUB_REF_NAME}-profile.apk"
+          cp "$src" "$out"
+          gh release upload "${GITHUB_REF_NAME}" "$out" --clobber
+          echo "Attached $out to ${GITHUB_REF_NAME}." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: codeprimer-debug-apk
-          path: app/ide-android/build/outputs/apk/debug/*.apk
+          name: codeprimer-apk
+          path: app/ide-android/build/outputs/apk/*/*.apk
           if-no-files-found: error
           retention-days: 30
 
