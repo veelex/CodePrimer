@@ -2,7 +2,7 @@
 
 # CodePrimer
 
-> **CodePrimer is a remix of [CodeAssist](https://github.com/tyron12233/CodeAssist) by tyron12233**, used under the GPL-3.0-or-later. It installs alongside the official app. See [REMIX.md](REMIX.md) for what changed. The install options listed further down describe the upstream project; this remix is distributed through this repository's GitHub Releases only.
+> **CodePrimer is a remix of [CodeAssist](https://github.com/tyron12233/CodeAssist) by tyron12233**, used under the GPL-3.0-or-later. It installs alongside the official app. See [REMIX.md](REMIX.md) for what changed. The install options listed further down describe the upstream project; this remix is distributed only through this repository's [GitHub Releases](https://github.com/veelex/CodePrimer/releases), which ship the `profile` build (non-debuggable, signed with the debug key, Google **test** ad ids).
 
 **A lightweight, on-device IDE that edits *and builds* Android & Java projects — no laptop, no Gradle daemon.**
 
@@ -14,6 +14,8 @@
 [![Stars](https://img.shields.io/github/stars/veelex/CodePrimer?style=flat&logo=github)](https://github.com/veelex/CodePrimer/stargazers)
 [![Forks](https://img.shields.io/github/forks/veelex/CodePrimer?style=flat&logo=github)](https://github.com/veelex/CodePrimer/network/members)
 [![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/y2gycT6pDW)
+
+**Fork, patch, ship:** [contributing](CONTRIBUTING.md) · [security policy](SECURITY.md) · [upstream sync](docs/upstream-sync.md) · [what changed in this remix](REMIX.md)
 
 <img src="docs/assets/banner.png" alt="CodeAssist: build Android apps on Android" width="720" />
 

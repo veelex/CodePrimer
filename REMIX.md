@@ -43,3 +43,26 @@ Base: upstream `main` at commit `ee24e06` (2026-10-29).
 ## Building your own signed release
 
 Use your own keystore (see `keystore.properties.example`). Do not reuse upstream's signing keys or Play listing.
+
+## Releases
+
+Releases are cut from `main` as `v<upstream base>-cp.<n>` (for example `v3.34.0-cp.1`) and published as
+GitHub Releases only. The APK is the `profile` variant: release-like and non-debuggable, so it behaves
+like the shipped app, and signed with the release key when one is configured in CI, otherwise with the
+debug key so it installs directly. It always carries Google's **test** ad ids and no backend endpoints —
+a fork must never serve the upstream author's ad units.
+
+`.github/workflows/apk.yml` builds it on the tag push, attaches
+`CodePrimer-<tag>-profile.apk` to the release, and prints the APK's `sha256` in the run summary so a
+download can be verified. See `CONTRIBUTING.md` for the maintainer release steps.
+
+## Staying in sync with upstream
+
+Upstream is merged **at each upstream release, within a week of it** — see
+[`docs/upstream-sync.md`](docs/upstream-sync.md) for the cadence, the conflict resolutions and the
+reason the "left as upstream on purpose" list above is load-bearing rather than cosmetic.
+
+The short version: never rename `dev.ide.*`, the module names, the `.caproj` format, the plugin SPI or
+the `codeassist` color-scheme id, and never rename a string *key* — only its value. Those five
+decisions are what keep this fork one merge away from upstream.
+

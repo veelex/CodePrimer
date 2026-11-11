@@ -1,0 +1,25 @@
+# The on-device toolchain binaries are committed on purpose (the IDE ships its own aapt2 and android.jar),
+# but they are opaque blobs: never diff them, never let git think they are text.
+*.jar   binary
+*.so    binary
+*.bin   binary
+*.zip   binary
+*.apk   binary
+*.aab   binary
+*.keystore binary
+*.jks   binary
+*.png   binary
+*.ttf   binary
+*.class binary
+
+# Normalise line endings so patches from Windows contributors apply cleanly.
+*.kt    text eol=lf
+*.kts   text eol=lf
+*.java  text eol=lf
+*.xml   text eol=lf
+*.md    text eol=lf
+*.yml   text eol=lf
+*.toml  text eol=lf
+
+# Keep the generated Gradle wrapper jar out of language stats.
+gradle/wrapper/gradle-wrapper.jar binary
