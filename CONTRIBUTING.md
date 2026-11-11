@@ -36,8 +36,12 @@ and fetch more history only if you need `git log`/`git blame` (`git fetch --deep
 | `./gradlew test` | JVM tests across all modules (~2,100 tests). |
 | `./gradlew :ide-android:assembleMinified` | R8 experiment only. **Never ship** — not runtime-validated against the toolchain. |
 
-Useful side doors: `./gradlew :desktop-app:run` for the Compose desktop launcher, the `cli` and `mcp`
-workflows for the headless entry points.
+The `mcp` workflow builds the on-device MCP server (the agent's tools over stdio) and runs its tests.
+
+**This fork is Android-only on purpose.** The desktop launcher (`:ide-desktop`), the iOS shell
+(`:ide-ios`), the headless CLI (`:build-cli` + `action.yml`), the desktop packaging workflow and the
+upstream Play-listing metadata (`fastlane/`) were removed — nothing on a phone runs them. Upstream
+changes to those paths are dropped at merge; see `docs/upstream-sync.md`.
 
 ## Ground rules
 

@@ -57,7 +57,7 @@ jobs:
 
       # `test` is a Kotlin/JVM task name; a multiplatform module has `jvmTest` instead, so the aggregate
       # above walks straight past every one of them. Named explicitly, or their suites do not run at all.
-      # (These are the JVM targets of those modules; their iOS targets are the `ios` job below.)
+      # (These are the JVM targets of those modules.)
       #
       # :kotlin-classfile reads compiled output from the step above as one of its two corpora, and
       # :kotlin-symbols diffs its port against the real :lang-kotlin-index, so both have to follow `test`
@@ -200,99 +200,5 @@ jobs:
         with:
           name: android-parity-reports
           path: app/ide-android/build/reports/androidTests/**
-          if-no-files-found: ignore
-          retention-days: 14
-
-  # The port. Every module below builds for iOS as well as the JVM, and what breaks it is almost never an
-  # iOS-specific edit — it is an ordinary change to `commonMain` that happens to name something the JVM has
-  # and Kotlin/Native does not (`java.*`, but also `synchronized`, `ThreadLocal`, `@Volatile` from
-  # `kotlin.jvm`, `toSortedSet`, `Dispatchers.IO`). That compiles and tests green everywhere else, so
-  # without this job the port rots silently and the next person to open Xcode pays for weeks of it.
-  #
-  # The tests RUN, on a simulator the Kotlin plugin picks itself (it shells out to `xcrun simctl list
-  # devices available`), so no device is pinned here — a runner image bump changes the device list and a
-  # pinned name would fail on it.
-  #
-  # The runner must carry the iOS 26 SDK (Xcode 26 or newer). Compose Multiplatform 1.11's `ui-uikit`
-  # references `UIViewLayoutRegion`, a UIKit class that first ships in that SDK, so every link that pulls
-  # Compose in fails with an undefined `_OBJC_CLASS_$_UIViewLayoutRegion` on macos-15, whose default
-  # Xcode 16.4 has only the iOS 18.5 SDK. The Compose-free framework suites link there either way.
-  ios:
-    name: iOS simulator suites
-    runs-on: macos-26
-    if: ${{ github.event_name != 'schedule' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Show the Xcode and SDKs in use
-        run: |
-          xcodebuild -version
-          xcodebuild -showsdks | grep -i simulator
-
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: ${{ env.JAVA_VERSION }}
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Disable Kotlin incremental compilation (CI)
-        run: |
-          mkdir -p ~/.gradle
-          echo "kotlin.incremental=false" >> ~/.gradle/gradle.properties
-
-      # 1) The framework on the simulator: the model and its store, the index and its segment format, the
-      #    Kotlin editor (parse -> symbols -> resolve -> completion), the class-file decoder and the Maven
-      #    resolver. CI_CORE_ONLY keeps the Compose shells out, so this step needs no Android SDK.
-      - name: Framework suites (iosSimulatorArm64)
-        run: >-
-          ./gradlew :model-api:iosSimulatorArm64Test :project-model-impl:iosSimulatorArm64Test
-          :index-impl:iosSimulatorArm64Test :lang-kotlin:iosSimulatorArm64Test
-          :kotlin-classfile:iosSimulatorArm64Test :kotlin-syntax:iosSimulatorArm64Test
-          :kotlin-symbols:iosSimulatorArm64Test :deps-impl:iosSimulatorArm64Test
-          :store-impl:iosSimulatorArm64Test :project-templates:iosSimulatorArm64Test
-          --console=plain --stacktrace
-
-      # 2) The host itself: `IosBackend` (files, projects, dependencies, the editor passes) and the
-      #    editor's IME command layer. These live in the shells, so the full module set is needed and with
-      #    it the Android SDK — the Compose/Android plugins want one even to CONFIGURE. Same provisioning
-      #    as the APK workflow.
-      - name: Set up Android SDK (the shells need one to configure)
-        uses: android-actions/setup-android@v3
-        with:
-          packages: "platform-tools platforms;android-36 platforms;android-36.1 build-tools;36.0.0"
-
-      # :model-bridge rides along here rather than in the framework job above for the same reason
-      # :ide-ios does: it api-exposes :ide-ui-api's DTOs, so it is part of the shell set that CI_CORE_ONLY
-      # drops. Its suite is plain JVM (the logic is platform-neutral, and the iOS host's own tests drive the
-      # same classes on the simulator), and this is the one job that has the module at all.
-      - name: iOS host suites (ide-ios, ide-ui-core) + the shared model bridge
-        env:
-          CI_CORE_ONLY: "false"
-        run: >-
-          ./gradlew :ide-ios:iosSimulatorArm64Test :ide-ui-core:iosSimulatorArm64Test
-          :model-bridge:jvmTest
-          --console=plain --stacktrace
-
-      # Linking the `CodeAssistUi` framework the Xcode app embeds. This step was left out at first, on the
-      # reasoning that the compiles above already prove every module builds for the target. They do not:
-      # Kotlin/Native lowers the WHOLE program at link time, so a tree that every target compiles cleanly can
-      # still fail here. It did -- `CastsOptimization` blew its stack on this graph and the iOS app could not
-      # be built at all, while every compile task stayed green. A ~6 minute link is worth catching that.
-      - name: Link the CodeAssistUi framework (whole-program lowering)
-        env:
-          CI_CORE_ONLY: "false"
-        run: ./gradlew :ide-ios:linkDebugFrameworkIosSimulatorArm64 --console=plain --stacktrace
-
-      - name: Upload iOS test reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-test-reports
-          path: |
-            **/build/reports/tests/**
-            **/build/test-results/**
           if-no-files-found: ignore
           retention-days: 14
