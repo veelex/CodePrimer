@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The mark: a prompt chevron and its cursor bar, `>_`, drawn as two strokes so the round caps and joins
-     stay round at every density. Geometry lives in the 108dp adaptive viewport and stays inside the 72dp
-     safe zone, so no launcher mask clips it. -->
+     stay round at every density.
+
+     Everything here fits the adaptive icon's 66dp safe circle (radius 33 of the 108dp viewport). The farthest
+     point - the bar's right cap - sits 32.1 units from the centre, so a circular launcher mask shows the whole
+     mark with no cropping. Do not scale this up without redoing that check: the 72dp "visible" square is not
+     the limit, the inscribed circle is. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M30,30 L57,55 L30,80"
+        android:pathData="M37,37 L56.1,54.7 L37,72.5"
         android:fillColor="#00000000"
         android:strokeColor="#FFFFC15E"
-        android:strokeWidth="11"
+        android:strokeWidth="7.8"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
-        android:pathData="M64,80 L81,80"
+        android:pathData="M61.1,72.5 L73.2,72.5"
         android:fillColor="#00000000"
         android:strokeColor="#FFFF7A5C"
-        android:strokeWidth="11"
+        android:strokeWidth="7.8"
         android:strokeLineCap="round" />
 </vector>

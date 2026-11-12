@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Themed-icon layer (Android 13+): same geometry, alpha only, so the launcher tints it. -->
+<!-- Themed-icon layer (Android 13+): same geometry as ic_launcher_foreground, alpha only. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M30,30 L57,55 L30,80"
+        android:pathData="M37,37 L56.1,54.7 L37,72.5"
         android:fillColor="#00000000"
         android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="11"
+        android:strokeWidth="7.8"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
-        android:pathData="M64,80 L81,80"
+        android:pathData="M61.1,72.5 L73.2,72.5"
         android:fillColor="#00000000"
         android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="11"
+        android:strokeWidth="7.8"
         android:strokeLineCap="round" />
 </vector>
